@@ -1,1 +1,128 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class TemperatureConversion extends JFrame implements ActionListener {
+
+    private JTextField inputField;
+    private JComboBox<String> unitBox;
+    private JTextArea resultArea;
+    private JButton convertButton, resetButton;
+
+    public TemperatureConversion() {
+        setTitle("Temperature Converter");
+        setSize(500, 370);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(new Color(240, 248, 255)); 
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20)); 
+
+        JLabel title = new JLabel("Temperature Converter");
+        title.setFont(new Font("SansSerif", Font.BOLD, 22));
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        title.setForeground(new Color(25, 25, 112));
+
+        JLabel inputLabel = new JLabel("Enter Temperature:");
+        inputLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        inputField = new JTextField(10);
+        inputField.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        inputField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
+        inputField.setToolTipText("Enter a number (e.g., 25)");
+
+        JLabel unitLabel = new JLabel("Select Unit:");
+        unitLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        unitBox = new JComboBox<>(new String[]{"Celsius", "Fahrenheit", "Kelvin"});
+        unitBox.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        unitBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
+
+        JPanel buttonPanel = new JPanel();
+        convertButton = new JButton("Convert");
+        convertButton.setFont(new Font("SansSerif", Font.BOLD, 16));
+        convertButton.setBackground(new Color(100, 149, 237));
+        convertButton.setForeground(Color.WHITE);
+        convertButton.setFocusPainted(false);
+        convertButton.addActionListener(this);
+
+        resetButton = new JButton("Reset");
+        resetButton.setFont(new Font("SansSerif", Font.BOLD, 16));
+        resetButton.setBackground(new Color(220, 20, 60));
+        resetButton.setForeground(Color.WHITE);
+        resetButton.setFocusPainted(false);
+        resetButton.addActionListener(e -> {
+            inputField.setText("");
+            resultArea.setText("");
+        });
+
+        buttonPanel.add(convertButton);
+        buttonPanel.add(resetButton);
+
+        resultArea = new JTextArea(4, 30);
+        resultArea.setEditable(false);
+        resultArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
+        resultArea.setBackground(Color.WHITE);
+        resultArea.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+
+        panel.add(title);
+        panel.add(Box.createRigidArea(new Dimension(0, 15)));
+        panel.add(inputLabel);
+        panel.add(inputField);
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.add(unitLabel);
+        panel.add(unitBox);
+        panel.add(Box.createRigidArea(new Dimension(0, 15)));
+        panel.add(buttonPanel);
+        panel.add(Box.createRigidArea(new Dimension(0, 15)));
+        panel.add(new JScrollPane(resultArea));
+
+        add(panel);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String input = inputField.getText().trim();
+
+        if (input.isEmpty()) {
+            resultArea.setText("Please enter a temperature value.");
+            return;
+        }
+
+        try {
+            double value = Double.parseDouble(input);
+            String unit = unitBox.getSelectedItem().toString();
+            StringBuilder result = new StringBuilder();
+
+            switch (unit) {
+                case "Celsius":
+                    result.append("Fahrenheit: ").append(String.format("%.2f", (value * 9 / 5) + 32)).append(" °F\n");
+                    result.append("Kelvin: ").append(String.format("%.2f", value + 273.15)).append(" K");
+                    break;
+                case "Fahrenheit":
+                    double c = (value - 32) * 5 / 9;
+                    result.append("Celsius: ").append(String.format("%.2f", c)).append(" °C\n");
+                    result.append("Kelvin: ").append(String.format("%.2f", c + 273.15)).append(" K");
+                    break;
+                case "Kelvin":
+                    if (value < 0) {
+                        resultArea.setText("Invalid input! Kelvin cannot be negative.");
+                        return;
+                    }
+                    double c2 = value - 273.15;
+                    result.append("Celsius: ").append(String.format("%.2f", c2)).append(" °C\n");
+                    result.append("Fahrenheit: ").append(String.format("%.2f", (c2 * 9 / 5) + 32)).append(" °F");
+                    break;
+            }
+
+            resultArea.setText(result.toString());
+        } catch (NumberFormatException ex) {
+            resultArea.setText("Invalid input! Please enter a numeric value.");
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new TemperatureConversion().setVisible(true));
+    }
+}
 
